@@ -1,55 +1,64 @@
 import { useFormik } from "formik";
+import { useContext } from "react";
+import { FormContext } from "../contexts/FormContext";
+import { FunnelIcon, Search } from "lucide-react";
+
+interface FormValues {
+  text: string;
+}
 
 const Taskform = () => {
-  const formik = useFormik({
-    initialValues: {
-      text: "",
-    },
-    onSubmit: (values) => {
-      console.log(values);
+  const formContext = useContext(FormContext);
+
+  if (!formContext) return null;
+
+  const formik = useFormik<FormValues>({
+    initialValues: { text: "" },
+    onSubmit: (values, { resetForm }) => {
+      formContext?.addTask(values.text);
+      resetForm();
     },
   });
-  // const [password, setPassword] = useState("");
-  // // const handleOnSubmit = (e: any) => {
-  // //   e.preventDefault();
-  // //   console.log("form is submitted");
-  // //   console.log(e.target.name.value);
-  // // };
 
-  // const handleTextOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   e.preventDefault();
-  //   console.log(e.target.value);
-
-  //   setPassword(e.target.value);
-  // };
   return (
-    <div>
-      <div className="justify-center items-center text-center pt-40  text-primary ">
-        To Do List
-      </div>
-      <div className=" flex justify-center mt-10 ml-14 items-center ">
-        <form onSubmit={formik.handleSubmit} className="space-x-4">
+    <section className="pt-10 w-11/12 md:w-8/12  mx-auto">
+      <form
+        onSubmit={formik.handleSubmit}
+        className="text-center bg-surface   pt-20 "
+      >
+        <input
+          type="text"
+          name="text"
+          onChange={formik.handleChange}
+          value={formik.values.text}
+          className="border text-primary  rounded-xl focus:bg-back px-8 py-2"
+          placeholder="Enter your task"
+        />
+        <button
+          type="submit"
+          className="ml-3 border px-4 py-2 text-primary hover:text-secondary rounded-xl"
+        >
+          ADD
+        </button>
+      </form>
+      <div className="bg-surface py-14 justify-between px-40 items-center flex">
+        <div className="flex gap-2 items-center">
+          <Search />
+          <p>Search</p>
+          <input type="text" className="bg-back py-2 rounded-xl" />
+        </div>
+        <div className="flex items-center gap-2">
+          <FunnelIcon />
+          <p>Filter</p>
           <input
             type="text"
-            name="text"
-            className="border-2 border-border px-8 py-10 "
-            onChange={formik.handleChange}
-            value={formik.values.text}
-            placeholder="Enter your Task "
+            name=""
+            id=""
+            className=" rounded-xl bg-back py-2"
           />
-          <button
-            type="submit"
-            className="border-2 border-border  px-2 py-1 rounded-2xl"
-          >
-            ADD
-          </button>
-        </form>
+        </div>
       </div>
-
-      <div className="text-center mt-6 bg-surface w-8/12 mx-auto">
-        {formik.values.text}
-      </div>
-    </div>
+    </section>
   );
 };
 
