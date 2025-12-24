@@ -1,9 +1,11 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { FormContext } from "../contexts/FormContext";
 // import Delete_button from "./ui/Delete_button";
 
 import { Pin, SquarePen, Trash } from "lucide-react";
-import Swal from "sweetalert2";
+import Swal from "sweetalert2"; 
+import ReactPaginate from "react-paginate";
+
 
 const TaskList = () => {
   const formContext = useContext(FormContext);
@@ -11,6 +13,8 @@ const TaskList = () => {
 
   const { deleteTask, editTask, togglePin, toggleComplete, tasks } =
     formContext!;
+
+   
 
   //   const [completed, setCompleted] = useState(0);
   //   const [pending, setPending] = useState(5);
@@ -83,6 +87,26 @@ const TaskList = () => {
     });
   };
 
+
+  
+
+    const itemsPerPage =5;
+  
+  
+      const [pageNumber, setPageNumber] = useState(0);
+
+  
+  const pagesVisited = pageNumber * itemsPerPage;
+  
+  
+  const pageCount = Math.ceil(tasks.length / itemsPerPage);
+
+
+
+
+   const handlePageClick =({selected}:{selected:number})=>{
+        setPageNumber(selected);
+   }
   return (
     <section className="w-11/12 md:w-8/12  mx-auto mt-6">
       <div className="flex justify-between font-semibold text-primary my-8">
@@ -95,7 +119,9 @@ const TaskList = () => {
         </div>
       </div>
       <div>
-        {sortedTasks.map((task, index) => (
+        {sortedTasks.
+        slice(pagesVisited  , pagesVisited+itemsPerPage)
+        .map((task, index) => (
           <div
             key={index}
             className={` text-primary flex justify-between p-4 mb-2 rounded
@@ -115,7 +141,9 @@ const TaskList = () => {
                   <span className="text-gray-900"></span>
                 </label>
               </div>
-              <div>{task.text}</div>
+              <div className={`${task.IsCompleted ? "line-through" : ""}`}>
+                {task.text}
+              </div>
             </div>
             <div className="flex gap-1 md:gap-4">
               <div
@@ -147,6 +175,26 @@ const TaskList = () => {
           </div>
         ))}
       </div>
+    {(tasks.length > itemsPerPage +1)
+    &&
+    (
+       <ReactPaginate
+        breakLabel="..."
+        nextLabel="next >"
+        onPageChange={handlePageClick}
+        pageRangeDisplayed={5}
+        pageCount={pageCount}
+        previousLabel="< previous"
+        renderOnZeroPageCount={null}
+        containerClassName="flex justify-center gap-4  mt-2 md:mt-6 lg:mt-8"
+        pageClassName="px-3 py-1 border rounded"
+        activeClassName="bg-primary text-white"
+        previousClassName="px-3 py-1 border rounded"
+        nextClassName="px-3 py-1 border rounded"
+        disabledClassName="opacity-50 cursor-not-allowed"
+      />
+    )}
+      
     </section>
   );
 };
