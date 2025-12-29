@@ -6,6 +6,7 @@ type Task = {
   IsCompleted: boolean;
   IsPinned: boolean;
 };
+type FilterType = "all" | "pending" | "completed";
 
 interface FormContextType {
   tasks: Task[];
@@ -14,6 +15,10 @@ interface FormContextType {
   editTask: (index: number, updatedTask: string) => void;
   toggleComplete: (index: number) => void;
   togglePin: (index: number) => void;
+  filterStatus: FilterType;
+  setFilterStatus: (status: FilterType) => void;
+  searchText: string;
+  setSearchText: (text: string) => void;
 }
 
 export const FormContext = createContext<FormContextType | null>(null);
@@ -24,6 +29,9 @@ const FormProvider = ({ children }: { children: ReactNode }) => {
 
     return savedtasks ? JSON.parse(savedtasks) : [];
   });
+
+    const [filterStatus, setFilterStatus] = useState<FilterType>("all");
+    const[searchText, setSearchText] = useState("")
 
   // to save data whenev3er tasks state change;
   useEffect(() => {
@@ -74,6 +82,10 @@ const FormProvider = ({ children }: { children: ReactNode }) => {
         editTask,
         toggleComplete,
         togglePin,
+         filterStatus,  
+        setFilterStatus,
+        searchText,
+        setSearchText
       }}
     >
       {children}

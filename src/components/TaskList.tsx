@@ -11,17 +11,26 @@ const TaskList = () => {
   const formContext = useContext(FormContext);
   if (!formContext) return null;
 
-  const { deleteTask, editTask, togglePin, toggleComplete, tasks } =
+  const { deleteTask, editTask, togglePin, toggleComplete, tasks, filterStatus, searchText } =
     formContext!;
 
-   
+  const filteredTasks = tasks.filter((task) => {
+    
+    if (filterStatus === "completed") return task.IsCompleted;
+    if (filterStatus === "pending") return !task.IsCompleted;
+
+    if (searchText && !task.text.toLowerCase().includes(searchText.toLowerCase()))
+      return false;
+    return true;
+  });
+
 
   //   const [completed, setCompleted] = useState(0);
   //   const [pending, setPending] = useState(5);
   const Iscompleted = formContext.tasks.filter((e) => e.IsCompleted).length;
   const pending = formContext.tasks.length - Iscompleted;
 
-  const sortedTasks = [...tasks].sort(
+  const sortedTasks = [...filteredTasks].sort(
     (a, b) => Number(b.IsPinned) - Number(a.IsPinned)
   );
 
@@ -87,28 +96,15 @@ const TaskList = () => {
     });
   };
 
-
-  
-
     const itemsPerPage =5;
-  
-  
-      const [pageNumber, setPageNumber] = useState(0);
-
-  
+    const [pageNumber, setPageNumber] = useState(0);
   const pagesVisited = pageNumber * itemsPerPage;
-  
-  
-  const pageCount = Math.ceil(tasks.length / itemsPerPage);
-
-
-
-
+  const pageCount = Math.ceil(sortedTasks.length / itemsPerPage);
    const handlePageClick =({selected}:{selected:number})=>{
         setPageNumber(selected);
    }
   return (
-    <section className="w-11/12 md:w-8/12  mx-auto mt-6">
+    <section className="pt-10 w-full max-w-5xl px-4  mx-auto">
       <div className="flex justify-between font-semibold text-primary my-8">
         <div>
           <h5>Task Item list </h5>
@@ -121,12 +117,17 @@ const TaskList = () => {
       <div>
         {sortedTasks.
         slice(pagesVisited  , pagesVisited+itemsPerPage)
-        .map((task, index) => (
-          <div
-            key={index}
-            className={` text-primary flex justify-between p-4 mb-2 rounded
-              ${task.IsPinned ? " bg-[#9BB4C0] " : "bg-surface"}`}
-          >
+        .map((task) => {
+           
+            const originalIndex = tasks.findIndex((t) => t === task);
+
+            return (
+              <div
+                key={originalIndex}
+                className={`flex justify-between p-4 mb-2 rounded ${
+                  task.IsPinned ? "bg-[#9BB4C0]" : "bg-surface"
+                }`}
+              >
             <div className="flex  gap-2">
               <div>
                 <label className="flex items-center space-x-3 cursor-pointer">
@@ -134,7 +135,7 @@ const TaskList = () => {
                     type="checkbox"
                     // onChange={handleCompleted}
                     checked={task.IsCompleted}
-                    onChange={() => toggleComplete(index)}
+                    onChange={() => toggleComplete(originalIndex)}
                     // onChange={() => formContext.toggleComplete(index)}
                     className="accent-pink-500 h-5 w-5 rounded"
                   />
@@ -147,7 +148,7 @@ const TaskList = () => {
             </div>
             <div className="flex gap-1 md:gap-4">
               <div
-                onClick={() => togglePin(index)}
+                onClick={() => togglePin(originalIndex)}
                 className={`flex px-2 py-1 items-center gap-1 rounded-xl cursor-pointer
                   ${task.IsPinned ? "bg-[#EA2C62]" : "md:bg-[#8CA9FF]"}`}
               >
@@ -157,7 +158,7 @@ const TaskList = () => {
                 </p>
               </div>
               <div
-                onClick={() => handleEdit(index, task.text)}
+                onClick={() => handleEdit(originalIndex, task.text)}
                 className="flex gap-1 items-center md:bg-[#405D72] rounded-xl  px-2 py-1"
               >
                 <SquarePen />
@@ -165,7 +166,7 @@ const TaskList = () => {
               </div>
 
               <div
-                onClick={() => handleDelete(index)}
+                onClick={() => handleDelete(originalIndex)}
                 className="flex text-white items-center text-center  px-2 py-1 gap-1   rounded-xl md:bg-red-600"
               >
                 <Trash />
@@ -173,9 +174,10 @@ const TaskList = () => {
               </div>
             </div>
           </div>
-        ))}
+            );
+})}
       </div>
-    {(tasks.length > itemsPerPage +1)
+    {(sortedTasks.length > itemsPerPage)
     &&
     (
        <ReactPaginate
