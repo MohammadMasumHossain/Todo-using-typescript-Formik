@@ -64,7 +64,7 @@ const Taskform = () => {
         </div>
        
         
-          <div className="flex items-center gap-3 w-full md:w-[48%]  lg:w-auto  ">
+          <div className="flex items-center gap-3 w-full md:w-[48%] lg:w-auto  ">
             <div className="flex items-center gap-2 text-primary ">
               <FunnelIcon />
               <span>Filter</span>

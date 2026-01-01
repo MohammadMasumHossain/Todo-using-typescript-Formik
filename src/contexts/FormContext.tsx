@@ -19,6 +19,9 @@ interface FormContextType {
   setFilterStatus: (status: FilterType) => void;
   searchText: string;
   setSearchText: (text: string) => void;
+  selectedColor: string;
+  setSelectedColor: (color: string) => void;
+
 }
 
 export const FormContext = createContext<FormContextType | null>(null);
@@ -32,6 +35,7 @@ const FormProvider = ({ children }: { children: ReactNode }) => {
 
     const [filterStatus, setFilterStatus] = useState<FilterType>("all");
     const[searchText, setSearchText] = useState("")
+    const[selectedColor, setSelectedColor] = useState<string>("");
 
   // to save data whenev3er tasks state change;
   useEffect(() => {
@@ -85,7 +89,9 @@ const FormProvider = ({ children }: { children: ReactNode }) => {
          filterStatus,  
         setFilterStatus,
         searchText,
-        setSearchText
+        setSearchText,
+        selectedColor,
+        setSelectedColor
       }}
     >
       {children}
