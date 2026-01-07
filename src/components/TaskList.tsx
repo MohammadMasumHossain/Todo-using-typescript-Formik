@@ -2,16 +2,21 @@ import { useContext, useState } from "react";
 import { FormContext } from "../contexts/FormContext";
 // import Delete_button from "./ui/Delete_button";
 
-import { Pin, SquarePen, Trash } from "lucide-react";
+import {
+  Pin,
+  Plus,
+  Search,
+  SquarePen,
+  Star,
+  Trash,
+  Trash2,
+  X,
+} from "lucide-react";
 import Swal from "sweetalert2";
 import ReactPaginate from "react-paginate";
 import { motion } from "framer-motion";
-
-type CardItem = {
-  id: number;
-  color: string;
-  text: string;
-};
+import DropDownMenu from "./DropDownMenu";
+// import FilterDropdown from "./FilterDropdown";
 
 const TaskList = () => {
   const formContext = useContext(FormContext);
@@ -21,12 +26,21 @@ const TaskList = () => {
     deleteTask,
     editTask,
     togglePin,
+    togglePinCard,
     toggleComplete,
     tasks,
     filterStatus,
     searchText,
     selectedColor,
     setSelectedColor,
+    cards,
+    noteText,
+    setNoteText,
+    showCard,
+    setShowCard,
+    addCard,
+    deleteCard,
+    editCard,
   } = formContext!;
 
   const filteredTasks = tasks.filter((task) => {
@@ -62,12 +76,15 @@ const TaskList = () => {
       confirmButtonText: "Yes, delete it!",
     }).then((result) => {
       if (result.isConfirmed) {
+        deleteCard(index);
         deleteTask(index);
 
         Swal.fire({
           title: "Deleted!",
           text: "Your file has been deleted.",
           icon: "success",
+          timer: 1200,
+          showConfirmButton: false,
         });
       }
     });
@@ -89,7 +106,8 @@ const TaskList = () => {
       },
     }).then((result) => {
       if (result.isConfirmed) {
-        editTask(index, result.value);
+        // editTask(index, result.value);
+        editCard(index, result.value);
 
         Swal.fire({
           icon: "success",
@@ -110,27 +128,99 @@ const TaskList = () => {
     setPageNumber(selected);
   };
 
-  const [cards, setCards] = useState<CardItem[]>([]);
-  const [newCardText, setNewCardText] = useState("");
-  const addCard = () => {
-    if (!selectedColor || !newCardText) return;
-    const newCard: CardItem = {
-      id: Date.now(),
-      color: selectedColor,
-      text: newCardText,
-    };
-    // Adds to the top of the list
-    setCards([newCard, ...cards]);
-    setNewCardText("");
-    setSelectedColor("");
-  };
+  // const [cards, setCards] = useState<CardItem[]>([]);
+  // const [noteText, setNoteText] = useState("");
+  // const [showCard, setShowCard] = useState(false);
+
   return (
     <>
-      <div
-        className={`h-80 max-w-xs rounded-md shadow-md ml-8 m-8 flex p-6 text-white font-semibold ${selectedColor}`}
-      >
-        <textarea className="w-full p-2  rounded-md  outline-none" />
-      </div>
+      <section className="pt-10 pb-10 justify-between flex ml-12 mr-12">
+        <div>
+          <h1 className="text-3xl font-bold">TaskList</h1>
+        </div>
+        <div className="flex space-x-4">
+          <div className="bg-white border w-auto  px-3 py-3 rounded-lg flex justify-center items-center">
+            <Search className=" mr-3" />
+            <input
+              className="bg-transparent w-full  outline-none font-medium"
+              type="text"
+              placeholder="Search notes..."
+            />
+          </div>
+
+          {/* <div className="border w-auto px-6 py-3 rounded-lg font-medium bg-transparent  items-center gap-3   ">
+            <select className=" text-black text-lg px-6  outline-none rounded-md">
+              <option className="hidden">select</option>
+              <option value="all">All</option>
+              <option value="pending">Pending</option>
+              <option value="completed">Completed</option>
+            </select>
+          </div> */}
+          <DropDownMenu></DropDownMenu>
+        </div>
+      </section>
+      <section className="grid  grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 ml-12 mr-12  mt-10 ">
+        {showCard && (
+          <div
+            className={`relative h-80 max-w-sm rounded-md shadow-md p-6 font-semibold ${selectedColor}`}
+          >
+            <textarea
+              value={noteText}
+              onChange={(e) => setNoteText(e.target.value)}
+              className="w-full p-2 rounded-md outline-none text-black"
+            />
+
+            <button
+              onClick={() => {
+                if (noteText.trim()) {
+                  addCard();
+                } else {
+                  setNoteText("");
+                  setShowCard(false);
+                }
+              }}
+              className="absolute bottom-3 right-3 bg-white text-black rounded-full p-2 shadow"
+            >
+              {noteText.trim() ? <Plus /> : <X />}
+            </button>
+          </div>
+        )}
+
+        {cards.map((card) => (
+          <div
+            key={card.id}
+            className={` relative h-80 group max-w-sm rounded-md shadow-md p-6 text-white font-semibold ${card.color}`}
+          >
+            <p>{card.text}</p>
+
+            <div className="flex absolute bottom-4 right-4 space-x-2">
+              <div
+                onClick={() => togglePinCard(card.id)}
+                className={`bg-white text-black rounded-full p-2 shadow cursor-pointer
+                ${
+                  card.IsPinned
+                    ? "opacity-100 "
+                    : "opacity-100 lg:opacity-0 group-hover:opacity-100"
+                }`}
+              >
+                <Star />
+              </div>
+              <div
+                onClick={() => handleDelete(card.id)}
+                className=" bg-white text-black rounded-full p-2 shadow cursor-pointer"
+              >
+                <Trash2 />
+              </div>
+              <div
+                onClick={() => handleEdit(card.id, card.text)}
+                className=" bg-white text-black rounded-full p-2 shadow cursor-pointer"
+              >
+                <SquarePen />
+              </div>
+            </div>
+          </div>
+        ))}
+      </section>
       <section className="pt-10 w-full max-w-5xl px-4  mx-auto">
         <div className="flex justify-between font-semibold text-primary my-8">
           <div>
