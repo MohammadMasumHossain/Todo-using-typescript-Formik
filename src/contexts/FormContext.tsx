@@ -1,35 +1,21 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext, useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
-
-type Task = {
-  text: string;
-  IsCompleted: boolean;
-  IsPinned: boolean;
-};
 
 type CardItem = {
   id: number;
   color: string;
   text: string;
   IsPinned: boolean;
+  IsCompleted: boolean;
 };
-type FilterType = "all" | "pending" | "completed";
 
 interface FormContextType {
-  tasks: Task[];
-  addTask: (task: string) => void;
-  deleteTask: (index: number) => void;
-  editTask: (index: number, updatedTask: string) => void;
   toggleComplete: (index: number) => void;
-  togglePin: (index: number) => void;
   togglePinCard: (id: number) => void;
-  filterStatus: FilterType;
-  setFilterStatus: (status: FilterType) => void;
   searchText: string;
   setSearchText: (text: string) => void;
   selectedColor: string;
   setSelectedColor: (color: string) => void;
-
   cards: CardItem[];
   addCard: () => void;
   deleteCard: (id: number) => void;
@@ -40,32 +26,41 @@ interface FormContextType {
 
   showCard: boolean;
   setShowCard: (value: boolean) => void;
+  editingId: number | null;
+  setEditingId: (id: number | null) => void;
+
+  editingText: string;
+  setEditingText: (text: string) => void;
+
+  reorderCards: (activeId: number, overId: number) => void;
 }
 
 export const FormContext = createContext<FormContextType | null>(null);
 
 const FormProvider = ({ children }: { children: ReactNode }) => {
-  const [tasks, setTasks] = useState<Task[]>(() => {
-    const savedtasks = localStorage.getItem("Tasks");
-
-    return savedtasks ? JSON.parse(savedtasks) : [];
-  });
   const [cards, setCards] = useState<CardItem[]>(() => {
     const saved = localStorage.getItem("Cards");
-    return saved ? JSON.parse(saved).reverse() : [];
+    return saved ? JSON.parse(saved) : [];
   });
 
   const [noteText, setNoteText] = useState("");
   const [showCard, setShowCard] = useState(false);
 
-  const [filterStatus, setFilterStatus] = useState<FilterType>("all");
   const [searchText, setSearchText] = useState("");
   const [selectedColor, setSelectedColor] = useState<string>("");
 
-  // to save data whenev3er tasks state change;
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editingText, setEditingText] = useState("");
+
+  const editTaskRef = useRef<HTMLTextAreaElement | null>(null);
+
   useEffect(() => {
-    localStorage.setItem("Tasks", JSON.stringify(tasks));
-  }, [tasks]);
+    if (editingId !== null && editTaskRef.current) {
+      editTaskRef.current.focus();
+      const len = editTaskRef.current.value.length;
+      editTaskRef.current.setSelectionRange(len, len);
+    }
+  }, [editingId]);
 
   useEffect(() => {
     localStorage.setItem("Cards", JSON.stringify(cards));
@@ -76,26 +71,17 @@ const FormProvider = ({ children }: { children: ReactNode }) => {
 
     setCards((prev) => [
       {
-        id: Date.now(),
+        id: Date.now() + Math.floor(Math.random() * 1000),
         text: noteText,
         color: selectedColor,
         IsPinned: false,
+        IsCompleted: false,
       },
       ...prev,
     ]);
 
     setNoteText("");
     setShowCard(false);
-  };
-
-  const addTask = (text: string) => {
-    setTasks((prev) => [
-      ...prev,
-      { text, IsCompleted: false, IsPinned: false },
-    ]);
-  };
-  const deleteTask = (index: number) => {
-    setTasks((prev) => prev.filter((_, i) => i !== index));
   };
 
   const deleteCard = (id: number) => {
@@ -107,23 +93,16 @@ const FormProvider = ({ children }: { children: ReactNode }) => {
       const updated = prev.map((card) =>
         card.id === id ? { ...card, text: updatedText } : card
       );
+      localStorage.setItem("Cards", JSON.stringify(updated));
       return updated;
     });
   };
 
-  const toggleComplete = (index: number) => {
-    setTasks((prev) => {
-      const updated = [...prev];
-      updated[index].IsCompleted = !updated[index].IsCompleted;
-
-      return updated;
-    });
-  };
-  const togglePin = (index: number) => {
-    setTasks((prev) => {
-      const updated = [...prev];
-
-      updated[index].IsPinned = !updated[index].IsPinned;
+  const toggleComplete = (id: number) => {
+    setCards((prev) => {
+      const updated = prev.map((card) =>
+        card.id === id ? { ...card, IsCompleted: !card.IsCompleted } : card
+      );
       return updated;
     });
   };
@@ -137,10 +116,17 @@ const FormProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
-  const editTask = (index: number, updatedTask: string) => {
-    setTasks((prev) => {
+  const reorderCards = (activeId: number, overId: number) => {
+    setCards((prev) => {
+      const oldIndex = prev.findIndex((c) => c.id === activeId);
+      const newIndex = prev.findIndex((c) => c.id === overId);
+
+      if (oldIndex === -1 || newIndex === -1) return prev;
+
       const updated = [...prev];
-      updated[index].text = updatedTask;
+      const [moved] = updated.splice(oldIndex, 1);
+      updated.splice(newIndex, 0, moved);
+
       return updated;
     });
   };
@@ -148,15 +134,8 @@ const FormProvider = ({ children }: { children: ReactNode }) => {
   return (
     <FormContext.Provider
       value={{
-        tasks,
-        addTask,
-        deleteTask,
-        editTask,
         toggleComplete,
-        togglePin,
         togglePinCard,
-        filterStatus,
-        setFilterStatus,
         searchText,
         setSearchText,
         selectedColor,
@@ -169,6 +148,11 @@ const FormProvider = ({ children }: { children: ReactNode }) => {
         setNoteText,
         showCard,
         setShowCard,
+        setEditingId,
+        editingId,
+        setEditingText,
+        editingText,
+        reorderCards,
       }}
     >
       {children}

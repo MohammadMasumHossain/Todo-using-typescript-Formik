@@ -17,7 +17,7 @@ const DropDownMenu = () => {
         onClick={() => setOpen(!open)}
         className="border flex py-3 rounded-md items-center justify-center gap-3 cursor-pointer bg-transparent"
       >
-        <span className="text-lg">{value || "select"}</span>
+        <span className="text-lg">{value || "Select"}</span>
         <ChevronDown className="w-5 h-5" />
       </div>
 
