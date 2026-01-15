@@ -158,200 +158,217 @@ const TaskList = () => {
 
   return (
     <>
-      <section className="pt-10  justify-center lg:justify-between flex ml-12 mr-12">
-        <div className="hidden lg:block">
-          <h1 className="text-3xl  font-bold">TaskList</h1>
-        </div>
-        <div className="flex  space-x-4">
-          <div className="bg-white border  w-full px-8 md:pr-20 lg:pr-40  py-3 rounded-lg flex lg:justify-center lg:items-center">
-            <Search className=" mr-3" />
-            <input
-              className="bg-transparent w-full outline-none font-medium"
-              type="text"
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-              placeholder="Search notes..."
-            />
-          </div>
-        </div>
-      </section>
-      <BottomNav
-        pending={pending}
-        pinned={pinned}
-        Iscompleted={Iscompleted}
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-      ></BottomNav>
-      <section className="hidden md:block">
-        <div className="ml-4">
-          <NavigationTabs
-            pending={pending}
-            pinned={pinned}
-            Iscompleted={Iscompleted}
-            activeTab={activeTab}
-            setActiveTab={setActiveTab}
-          ></NavigationTabs>
-        </div>
-      </section>
-
-      <section className="grid grid-cols-1 justify-self-center self-center md:justify-items-stretch md:grid-cols-2 lg:grid-cols-4 gap-4 md:ml-12 md:mr-12 mt-10 ">
-        {showCard && (
-          <div
-            className={`relative h-60 w-full max-w-sm rounded-md shadow-md p-6 font-semibold ${selectedColor}`}
-          >
-            <textarea
-              value={noteText}
-              ref={addTaskRef}
-              onChange={(e) => setNoteText(e.target.value)}
-              className="w-full p-2  rounded-md outline-none text-black"
-            />
-
-            <button
-              onClick={() => {
-                if (noteText.trim()) {
-                  addCard();
-                  toast.success("Task added suceessfully");
-                } else {
-                  setNoteText("");
-                  setShowCard(false);
-                }
-              }}
-              className="absolute bottom-3 right-3 bg-white text-black rounded-full p-2 shadow"
-            >
-              {noteText.trim() ? <Plus /> : <X />}
-            </button>
-          </div>
-        )}
-        <DndContext
-          onDragEnd={handleDragEnd}
-          sensors={sensors}
-          collisionDetection={closestCenter}
+      <div className="min-h-screen ">
+        <section
+          className="pt-10 flex flex-col gap-4 lg:flex-row lg:justify-between mx-4 lg:mx-12"
+          // className="pt-10  justify-center lg:justify-between flex ml-12 mr-12"
         >
-          <SortableContext
-            items={sortedCard.map((card) => card.id)}
-            strategy={rectSwappingStrategy}
-          >
-            {sortedCard
-              .slice(pagesVisited, pagesVisited + itemsPerPage)
-              .map((card) => (
-                <SortableCard key={card.id} id={card.id}>
-                  <div
-                    key={card.id}
-                    className={` relative h-60 group w-full max-w-sm rounded-md shadow-md p-6 text-black font-semibold ${card.color}`}
-                  >
-                    {editingId === card.id ? (
-                      <textarea
-                        value={editingText}
-                        // autoFocus
-                        // ref={editTaskRef}
-                        ref={(el) => {
-                          if (el) {
-                            el.focus();
-                            const len = el.value.length;
-                            el.setSelectionRange(len, len);
-                          }
-                        }}
-                        onChange={(e) => setEditingText(e.target.value)}
-                        onBlur={() => {
-                          editCard(card.id, editingText);
-                          setEditingId(null);
-                        }}
-                        className="w-full h-32 p-2 rounded-md outline-none text-black resize-none"
-                      />
-                    ) : (
-                      <p>{card.text}</p>
-                    )}
+          <div className="hidden lg:block">
+            <h1 className="text-3xl  font-bold">TaskList</h1>
+          </div>
+          <div className="flex  space-x-4">
+            <div className="bg-white border  w-full px-8 md:pr-20 lg:pr-40  py-3 rounded-lg flex lg:justify-center lg:items-center">
+              <Search className=" mr-3" />
+              <input
+                className="bg-transparent w-full outline-none font-medium"
+                type="text"
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                placeholder="Search notes..."
+              />
+            </div>
+          </div>
+          <div className="lg:hidden ml-4">
+            <h1 className="text-3xl  font-bold">TaskList</h1>
+          </div>
+        </section>
+        <BottomNav
+          pending={pending}
+          pinned={pinned}
+          Iscompleted={Iscompleted}
+          activeTab={activeTab}
+          setActiveTab={setActiveTab} // className="bg-white border w-full lg:max-w-xl px-4 py-3 rounded-lg flex items-center"
+        ></BottomNav>
+        <section className="hidden md:block">
+          <div className="ml-4">
+            <NavigationTabs
+              pending={pending}
+              pinned={pinned}
+              Iscompleted={Iscompleted}
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
+            ></NavigationTabs>
+          </div>
+        </section>
 
+        <section className="grid grid-cols-1 md:grid-cols-2  lg:grid-cols-4 gap-4 mx-4 items-start lg:mx-12 mt-10 ">
+          {showCard && (
+            <div
+              className={`relative h-60 w-full max-w-sm rounded-md shadow-md p-6 font-semibold ${selectedColor}`}
+            >
+              <textarea
+                value={noteText}
+                ref={addTaskRef}
+                onChange={(e) => setNoteText(e.target.value)}
+                className="w-full p-2 rounded-md outline-none text-black"
+              />
+
+              <button
+                onClick={() => {
+                  if (noteText.trim()) {
+                    addCard();
+                    toast.success("Task added suceessfully");
+                  } else {
+                    setNoteText("");
+                    setShowCard(false);
+                  }
+                }}
+                className="absolute bottom-3 right-3 bg-white text-black rounded-full p-2 shadow"
+              >
+                {noteText.trim() ? <Plus /> : <X />}
+              </button>
+            </div>
+          )}
+          <DndContext
+            onDragEnd={handleDragEnd}
+            sensors={sensors}
+            collisionDetection={closestCenter}
+          >
+            <SortableContext
+              items={sortedCard.map((card) => card.id)}
+              strategy={rectSwappingStrategy}
+            >
+              {sortedCard
+                .slice(pagesVisited, pagesVisited + itemsPerPage)
+                .map((card) => (
+                  <SortableCard key={card.id} id={card.id}>
                     <div
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleComplete(card.id);
-                        toast.success(
-                          card.IsCompleted
-                            ? "Taskmarked  pending"
-                            : "Task Completed"
-                        );
-                      }}
-                      className={`absolute bottom-4 left-4 rounded-full p-2 shadow cursor-pointer
+                      key={card.id}
+                      className={` relative h-60 group w-full rounded-md shadow-md p-6 text-black font-semibold ${card.color}`}
+                    >
+                      {editingId === card.id ? (
+                        <textarea
+                          value={editingText}
+                          // autoFocus
+                          // ref={editTaskRef}
+                          ref={(el) => {
+                            if (el) {
+                              el.focus();
+                              const len = el.value.length;
+                              el.setSelectionRange(len, len);
+                            }
+                          }}
+                          onChange={(e) => setEditingText(e.target.value)}
+                          onBlur={() => {
+                            editCard(card.id, editingText);
+                            setEditingId(null);
+                          }}
+                          className="w-full h-32 p-2 rounded-md outline-none text-black resize-none"
+                        />
+                      ) : (
+                        <p>{card.text}</p>
+                      )}
+
+                      <div
+                        title="completed"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleComplete(card.id);
+                          toast.success(
+                            card.IsCompleted
+                              ? "Taskmarked  pending"
+                              : "Task Completed"
+                          );
+                        }}
+                        className={`absolute bottom-4 left-4 rounded-full p-2 shadow cursor-pointer
                 ${
                   card.IsCompleted
                     ? "bg-black text-green-400"
                     : "bg-white text-black"
                 }`}
-                    >
-                      <Check />
-                    </div>
-                    <div className="flex absolute bottom-4 right-4 space-x-2">
-                      <div
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          togglePinCard(card.id);
-                          toast.success(
-                            card.IsPinned ? "Task unpinned " : "Task pinned"
-                          );
-                        }}
-                        className={` rounded-full p-2 shadow cursor-pointer
+                      >
+                        <Check />
+                      </div>
+                      <div className="flex absolute bottom-4 right-4 space-x-2">
+                        <div
+                          title="Pin"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            togglePinCard(card.id);
+                            toast.success(
+                              card.IsPinned ? "Task unpinned " : "Task pinned"
+                            );
+                          }}
+                          className={` rounded-full p-2 shadow cursor-pointer
                 ${
                   card.IsPinned
-                    ? "opacity-100 bg-black text-green-400 "
+                    ? "opacity-100 bg-black  text-green-400 "
                     : "opacity-0 bg-white text-black group-hover:opacity-100"
                 }`}
-                      >
-                        <Star />
-                      </div>
-                      <div
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteClick(card.id);
-                        }}
-                        className=" bg-white text-black rounded-full p-2 shadow cursor-pointer"
-                      >
-                        <Trash2 />
-                      </div>
+                        >
+                          <Star />
+                        </div>
+                        <div
+                          title="delete"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteClick(card.id);
+                          }}
+                          className="bg-white text-black hover:bg-black hover:text-white rounded-full p-2 shadow cursor-pointer"
+                        >
+                          <Trash2 className="hover:fill-red-500 " />
+                        </div>
 
-                      <div
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setEditingId(card.id);
-                          setEditingText(card.text);
-                        }}
-                        className=" bg-white text-black rounded-full p-2 shadow cursor-pointer"
-                      >
-                        {editingId === card.id ? <Save /> : <SquarePen />}
+                        <div
+                          title="Edit"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setEditingId(card.id);
+                            setEditingText(card.text);
+                          }}
+                          className=" bg-white text-black rounded-full p-2 shadow cursor-pointer"
+                        >
+                          {editingId === card.id ? <Save /> : <SquarePen />}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </SortableCard>
-              ))}
-          </SortableContext>
-        </DndContext>
-      </section>
-      <div className="items-center pb-10 justify-center ">
-        {sortedCard.length > itemsPerPage && (
-          <ReactPaginate
-            breakLabel="..."
-            nextLabel="next >"
-            onPageChange={handlePageClick}
-            pageRangeDisplayed={12}
-            pageCount={pageCount}
-            previousLabel="< previous"
-            renderOnZeroPageCount={null}
-            containerClassName="flex justify-center gap-4   mt-2 md:mt-6 lg:mt-8"
-            pageClassName="px-3 py-1 border rounded"
-            activeClassName="bg-primary text-white"
-            previousClassName="px-3 py-1 border rounded"
-            nextClassName="px-3 py-1 border rounded"
-            disabledClassName="opacity-50 cursor-not-allowed"
-          />
+                  </SortableCard>
+                ))}
+            </SortableContext>
+          </DndContext>
+        </section>
+        {sortedCard.length === 0 && !showCard && (
+          <p className="text-center text-gray-400 mt-20">
+            No tasks yet. Click + to add one.
+          </p>
         )}
-      </div>
-      <div>
-        <DeleteModal
-          isOpen={isModalOpen}
-          onClose={handleCloseModal}
-          onConfirm={handleConfirmDelete}
-          itemName={itemToDelete !== null ? itemToDelete : "card.id"}
-        ></DeleteModal>
+        <div className="items-center pb-20 md:pb-6 lg:pb-10 justify-center ">
+          {sortedCard.length > itemsPerPage && (
+            <ReactPaginate
+              breakLabel="..."
+              nextLabel="next >"
+              onPageChange={handlePageClick}
+              pageRangeDisplayed={12}
+              pageCount={pageCount}
+              previousLabel="< previous"
+              renderOnZeroPageCount={null}
+              containerClassName="flex justify-center gap-4   mt-2 md:mt-6 lg:mt-8"
+              pageClassName="px-3 py-1 border rounded"
+              activeClassName="bg-primary text-white"
+              previousClassName="px-3 py-1 border rounded"
+              nextClassName="px-3 py-1 border rounded"
+              disabledClassName="opacity-50 cursor-not-allowed"
+            />
+          )}
+        </div>
+        <div>
+          <DeleteModal
+            isOpen={isModalOpen}
+            onClose={handleCloseModal}
+            onConfirm={handleConfirmDelete}
+            itemName={itemToDelete !== null ? itemToDelete : "card.id"}
+          ></DeleteModal>
+        </div>
       </div>
     </>
   );

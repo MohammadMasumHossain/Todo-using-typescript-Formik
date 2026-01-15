@@ -1,19 +1,16 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap");
 @import "tailwindcss";
 
-
 @theme {
-
-  --color-back: #FFFFFF;
-  --color-surface: #D8C4B6;
+  --color-back: #ffffff;
+  --color-surface: #d8c4b6;
 
   --color-primary: #213555;
-  --color-secondary: #3E5879;
+  --color-secondary: #3e5879;
 
+  --color-primary-hover: #3e5879;
 
-  --color-primary-hover: #3E5879;
-
-  --color-border: #3E5879;
+  --color-border: #3e5879;
 }
 
 .fontoutfit {
