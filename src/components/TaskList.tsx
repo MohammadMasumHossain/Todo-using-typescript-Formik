@@ -269,7 +269,7 @@ const TaskList = () => {
                         <p>{card.text}</p>
                       )}
 
-                      <div
+                      <button
                         title="completed"
                         onClick={(e) => {
                           e.stopPropagation();
@@ -284,13 +284,13 @@ const TaskList = () => {
                 ${
                   card.IsCompleted
                     ? "bg-black text-green-400"
-                    : "bg-white text-black"
+                    : "bg-white text-black hover:bg-black hover:text-white"
                 }`}
                       >
                         <Check />
-                      </div>
+                      </button>
                       <div className="flex absolute bottom-4 right-4 space-x-2">
-                        <div
+                        <button
                           title="Pin"
                           onClick={(e) => {
                             e.stopPropagation();
@@ -302,13 +302,13 @@ const TaskList = () => {
                           className={` rounded-full p-2 shadow cursor-pointer
                 ${
                   card.IsPinned
-                    ? "opacity-100 bg-black  text-green-400 "
+                    ? "opacity-100 bg-black text-yellow-300"
                     : "opacity-0 bg-white text-black group-hover:opacity-100"
                 }`}
                         >
-                          <Star />
-                        </div>
-                        <div
+                          <Star className="fill-[#FFD700]" />
+                        </button>
+                        <button
                           title="delete"
                           onClick={(e) => {
                             e.stopPropagation();
@@ -317,19 +317,19 @@ const TaskList = () => {
                           className="bg-white text-black hover:bg-black hover:text-white rounded-full p-2 shadow cursor-pointer"
                         >
                           <Trash2 className="hover:fill-red-500 " />
-                        </div>
+                        </button>
 
-                        <div
+                        <button
                           title="Edit"
                           onClick={(e) => {
                             e.stopPropagation();
                             setEditingId(card.id);
                             setEditingText(card.text);
                           }}
-                          className=" bg-white text-black rounded-full p-2 shadow cursor-pointer"
+                          className=" bg-white text-black hover:bg-black hover:text-blue-600 rounded-full p-2 shadow cursor-pointer"
                         >
                           {editingId === card.id ? <Save /> : <SquarePen />}
-                        </div>
+                        </button>
                       </div>
                     </div>
                   </SortableCard>
