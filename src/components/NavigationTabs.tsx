@@ -1,4 +1,5 @@
 import React from "react";
+import { motion } from "framer-motion";
 
 interface TabItem {
   id: "all" | "pinned" | "completed" | "pending";
@@ -25,16 +26,16 @@ const NavigationTabs: React.FC<{
   return (
     <div className="p-4">
       {/* Tab Navigation Menu */}
-      <div className="flex border-b border-gray-200">
+      <div className=" flex border-b border-gray-200">
         {tabsData.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`
-              px-6 py-3 text-base font-medium transition-colors duration-20
+            className={` relative
+              px-6 py-3 text-base font-medium hover:cursor-pointer transition-colors duration-20
               ${
                 activeTab === tab.id
-                  ? "border-b-2 border-blue-500   text-blue-600"
+                  ? "   text-blue-600"
                   : "text-gray-500 hover:text-gray-700 cursor-pointer"
               }
               focus:outline-none
@@ -51,6 +52,13 @@ const NavigationTabs: React.FC<{
             >
               {tab.value}
             </span>
+
+            {activeTab === tab.id && (
+              <motion.div
+                layoutId="activeTabUnderline"
+                className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500"
+              />
+            )}
           </button>
         ))}
       </div>

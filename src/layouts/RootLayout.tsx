@@ -8,7 +8,7 @@ const RootLayout = () => {
   return (
     <>
       <main className="bg-back grid grid-cols-12 min-h-screen  ">
-        <aside className="left_side lg:border-r lg:border-r-gray-200 lg:col-span-1 ">
+        <aside className="left_side lg:border-r lg:border-r-gray-200 lg:col-span-1">
           <LeftAside></LeftAside>
         </aside>
 

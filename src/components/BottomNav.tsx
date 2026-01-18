@@ -32,7 +32,7 @@ const BottomNav: React.FC<{
   return (
     <div className="fixed bottom-0 left-0 z-50 w-full h-18 bg-gray-50 border-t border-gray-200 md:hidden shadow-lg">
       {/* Tab Navigation Menu */}
-      <div className="flex justify-around items-center h-full max-w-lg mx-auto">
+      <div className="flex justify-around items-center mt-2 h-full max-w-lg mx-auto">
         {tabsData.map((tab) => {
           const Icon = tab.icon;
           return (
@@ -40,26 +40,42 @@ const BottomNav: React.FC<{
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`flex flex-col justify-center items-center gap-1
-              px-2 py-2 text-base font-medium transition-colors duration-20
-              ${
-                activeTab === tab.id
-                  ? "text-blue-600"
-                  : "text-gray-500 hover:text-blue-600"
-              }
+              px-2 py-2 text-sm font-normal transition-colors duration-20
+             
               focus:outline-none
             `}
             >
               <div className="relative">
-                <Icon />
+                <Icon
+                  className={`${
+                    activeTab === tab.id
+                      ? "text-blue-600"
+                      : "text-gray-500 hover:text-blue-600"
+                  }`}
+                />
                 <div>
                   {tab.value > 0 && (
-                    <span className="absolute -top-2 -right-2 ">
+                    <span
+                      className={`absolute -top-3 -right-3 px-1 rounded-full py-0.5 ${
+                        activeTab === tab.id
+                          ? "bg-blue-100 text-blue-600"
+                          : "bg-gray-200 text-gray-600"
+                      }`}
+                    >
                       {tab.value}
                     </span>
                   )}
                 </div>
               </div>
-              <span className="">{tab.label}</span>
+              <span
+                className={`${
+                  activeTab === tab.id
+                    ? "text-blue-600"
+                    : "text-gray-500 hover:text-blue-600"
+                }`}
+              >
+                {tab.label}
+              </span>
             </button>
           );
         })}

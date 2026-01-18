@@ -57,7 +57,7 @@ const LeftAside = () => {
           whileTap={{ scale: 0.9 }}
           onClick={() => setIsVisible(!isVisible)}
           // className="fixed lg:static bottom-16 left-1/2 -translate-x-1/2 lg:translate-x-7 lg:mt-16 transform  flex items-center justify-center bg-black text-white p-4 rounded-full shadow-lg z-40"
-          className=" left-1/2 flex  lg:items-center lg:justify-center fixed lg:static bg-black -ml-6 -lg:ml-0 text-white bottom-30 md:bottom-16 p-2 rounded-full  lg:mx-auto z-40 lg:mt-16"
+          className=" left-10/12 md:left-1/2 flex  lg:items-center lg:justify-center fixed lg:static bg-black -ml-6 -lg:ml-0 text-white bottom-30 md:bottom-16 p-2 rounded-full  lg:mx-auto z-40 lg:mt-16 hover:scale-120 duration-200 ease-in-out"
         >
           {isVisible ? (
             <motion.span

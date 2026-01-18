@@ -1,6 +1,8 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { FormContext } from "../contexts/FormContext";
 import { toast } from "react-toastify";
+import { AnimatePresence, motion } from "framer-motion";
+
 import {
   closestCenter,
   DndContext,
@@ -27,7 +29,7 @@ import {
 import ReactPaginate from "react-paginate";
 import NavigationTabs from "./NavigationTabs";
 import DeleteModal from "./DeleteModal";
-import { rectSwappingStrategy, SortableContext } from "@dnd-kit/sortable";
+import { rectSortingStrategy, SortableContext } from "@dnd-kit/sortable";
 import SortableCard from "./SortableCard";
 import BottomNav from "./BottomNav";
 
@@ -146,7 +148,7 @@ const TaskList = () => {
         distance: 10,
       },
     }),
-    useSensor(KeyboardSensor)
+    useSensor(KeyboardSensor),
   );
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -156,11 +158,30 @@ const TaskList = () => {
     reorderCards(active.id as number, over.id as number);
   };
 
+  const [hideDock, setHideDock] = useState(false);
+  const [lastScrollY, setLastScrolly] = useState(0);
+  const bottomNav = () => {
+    if (window.scrollY > lastScrollY) {
+      setHideDock(true);
+    } else {
+      setHideDock(false);
+    }
+    setLastScrolly(window.scrollY);
+  };
+
+  useEffect(() => {
+    window.addEventListener("scroll", bottomNav);
+
+    return () => {
+      window.removeEventListener("scroll", bottomNav);
+    };
+  }, [lastScrollY]);
+
   return (
     <>
       <div className="min-h-screen ">
         <section
-          className="pt-10 flex flex-col gap-4 lg:flex-row lg:justify-between mx-4 lg:mx-12"
+          className="pt-10 flex flex-col gap-4 lg:flex-row lg:justify-between mx-4 lg:mx-12  sticky scroll-smooth"
           // className="pt-10  justify-center lg:justify-between flex ml-12 mr-12"
         >
           <div className="hidden lg:block">
@@ -182,14 +203,31 @@ const TaskList = () => {
             <h1 className="text-3xl  font-bold">TaskList</h1>
           </div>
         </section>
-        <BottomNav
-          pending={pending}
-          pinned={pinned}
-          Iscompleted={Iscompleted}
-          activeTab={activeTab}
-          setActiveTab={setActiveTab} // className="bg-white border w-full lg:max-w-xl px-4 py-3 rounded-lg flex items-center"
-        ></BottomNav>
-        <section className="hidden md:block">
+        <AnimatePresence>
+          <motion.div
+            initial={{ y: 80, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 80, opacity: 0 }}
+            transition={{
+              duration: 0.5,
+              type: "spring",
+              stiffness: 200,
+              damping: 15,
+            }}
+            className="fixed bottom-0 left-0 w-full z-50"
+          >
+            <div className={` ${hideDock && "hidden"}`}>
+              <BottomNav
+                pending={pending}
+                pinned={pinned}
+                Iscompleted={Iscompleted}
+                activeTab={activeTab}
+                setActiveTab={setActiveTab} // className="bg-white border w-full lg:max-w-xl px-4 py-3 rounded-lg flex items-center"
+              />
+            </div>
+          </motion.div>
+        </AnimatePresence>
+        <section className="hidden md:block sticky">
           <div className="ml-4">
             <NavigationTabs
               pending={pending}
@@ -197,20 +235,32 @@ const TaskList = () => {
               Iscompleted={Iscompleted}
               activeTab={activeTab}
               setActiveTab={setActiveTab}
-            ></NavigationTabs>
+            />
           </div>
         </section>
 
-        <section className="grid grid-cols-1 md:grid-cols-2  lg:grid-cols-4 gap-4 mx-4 items-start lg:mx-12 mt-10 ">
+        <section className="grid grid-cols-1 md:grid-cols-2  lg:grid-cols-3 xl-grid-cols-4 gap-4 lg:gap-8 mx-4 items-start lg:mx-12 mt-10 ">
           {showCard && (
-            <div
-              className={`relative h-60 w-full max-w-sm rounded-md shadow-md p-6 font-semibold ${selectedColor}`}
+            <motion.div
+              // initial={{ y: 100, opacity: 0 }}
+              // animate={{ y: 0, opacity: 1 }}
+              // exit={{ y: -100, opacity: 0 }}
+              initial={{ y: 200, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: -200, opacity: 0 }}
+              transition={{
+                duration: 0.5,
+                type: "spring",
+                stiffness: 200,
+                damping: 15,
+              }}
+              className={`relative h-60 w-full rounded-md shadow-md p-6 font-semibold ${selectedColor}`}
             >
               <textarea
                 value={noteText}
                 ref={addTaskRef}
                 onChange={(e) => setNoteText(e.target.value)}
-                className="w-full p-2 rounded-md outline-none text-black"
+                className="w-full p-2 rounded-md outline-none text-black resize-none"
               />
 
               <button
@@ -227,114 +277,129 @@ const TaskList = () => {
               >
                 {noteText.trim() ? <Plus /> : <X />}
               </button>
-            </div>
+            </motion.div>
           )}
           <DndContext
             onDragEnd={handleDragEnd}
             sensors={sensors}
             collisionDetection={closestCenter}
           >
-            <SortableContext
-              items={sortedCard.map((card) => card.id)}
-              strategy={rectSwappingStrategy}
-            >
-              {sortedCard
-                .slice(pagesVisited, pagesVisited + itemsPerPage)
-                .map((card) => (
-                  <SortableCard key={card.id} id={card.id}>
-                    <div
-                      key={card.id}
-                      className={` relative h-60 group w-full rounded-md shadow-md p-6 text-black font-semibold ${card.color}`}
-                    >
-                      {editingId === card.id ? (
-                        <textarea
-                          value={editingText}
-                          // autoFocus
-                          // ref={editTaskRef}
-                          ref={(el) => {
-                            if (el) {
-                              el.focus();
-                              const len = el.value.length;
-                              el.setSelectionRange(len, len);
-                            }
-                          }}
-                          onChange={(e) => setEditingText(e.target.value)}
-                          onBlur={() => {
-                            editCard(card.id, editingText);
-                            setEditingId(null);
-                          }}
-                          className="w-full h-32 p-2 rounded-md outline-none text-black resize-none"
-                        />
-                      ) : (
-                        <p>{card.text}</p>
-                      )}
-
-                      <button
-                        title="completed"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleComplete(card.id);
-                          toast.success(
-                            card.IsCompleted
-                              ? "Taskmarked  pending"
-                              : "Task Completed"
-                          );
+            <AnimatePresence mode="wait">
+              <SortableContext
+                items={sortedCard.map((card) => card.id)}
+                strategy={rectSortingStrategy}
+              >
+                {sortedCard
+                  .slice(pagesVisited, pagesVisited + itemsPerPage)
+                  .map((card) => (
+                    <SortableCard key={card.id} id={card.id}>
+                      <motion.div
+                        key={activeTab}
+                        layout
+                        initial={{ y: 200, scale: 0.9, opacity: 0 }}
+                        animate={{ y: 0, scale: 1, opacity: 1 }}
+                        exit={{ y: -200, scale: 0.9, opacity: 0 }}
+                        transition={{
+                          duration: 0.8,
+                          type: "spring",
+                          // ease: "linear",
+                          stiffness: 120,
+                          damping: 10,
                         }}
-                        className={`absolute bottom-4 left-4 rounded-full p-2 shadow cursor-pointer
+                        className={` relative h-60 group w-full  rounded-md shadow-md p-6 text-black font-semibold ${card.color}`}
+                      >
+                        {editingId === card.id ? (
+                          <textarea
+                            value={editingText}
+                            // autoFocus
+                            // ref={editTaskRef}
+                            ref={(el) => {
+                              if (el) {
+                                el.focus();
+                                const len = el.value.length;
+                                el.setSelectionRange(len, len);
+                              }
+                            }}
+                            onChange={(e) => setEditingText(e.target.value)}
+                            onBlur={() => {
+                              editCard(card.id, editingText);
+                              setEditingId(null);
+                            }}
+                            className="w-full h-32 p-2 rounded-md outline-none text-black resize-none"
+                          />
+                        ) : (
+                          <p>{card.text}</p>
+                        )}
+
+                        <button
+                          title="completed"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleComplete(card.id);
+                            toast.success(
+                              card.IsCompleted
+                                ? "Taskmarked  pending"
+                                : "Task Completed",
+                            );
+                          }}
+                          className={`absolute bottom-4 left-4 rounded-full p-2 shadow cursor-pointer
                 ${
                   card.IsCompleted
                     ? "bg-black text-green-400"
                     : "bg-white text-black hover:bg-black hover:text-white"
                 }`}
-                      >
-                        <Check />
-                      </button>
-                      <div className="flex absolute bottom-4 right-4 space-x-2">
-                        <button
-                          title="Pin"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            togglePinCard(card.id);
-                            toast.success(
-                              card.IsPinned ? "Task unpinned " : "Task pinned"
-                            );
-                          }}
-                          className={` rounded-full p-2 shadow cursor-pointer
+                        >
+                          <Check />
+                        </button>
+                        <div className="flex absolute bottom-4 right-4 space-x-2">
+                          <button
+                            title="Pin"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              togglePinCard(card.id);
+                              toast.success(
+                                card.IsPinned
+                                  ? "Task unpinned "
+                                  : "Task pinned",
+                              );
+                            }}
+                            className={` rounded-full p-2 shadow cursor-pointer
                 ${
                   card.IsPinned
                     ? "opacity-100 bg-black text-yellow-300"
                     : "opacity-0 bg-white text-black group-hover:opacity-100"
                 }`}
-                        >
-                          <Star className="fill-[#FFD700]" />
-                        </button>
-                        <button
-                          title="delete"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteClick(card.id);
-                          }}
-                          className="bg-white text-black hover:bg-black hover:text-white rounded-full p-2 shadow cursor-pointer"
-                        >
-                          <Trash2 className="hover:fill-red-500 " />
-                        </button>
+                          >
+                            <Star className="fill-[#FFD700]" />
+                          </button>
+                          <button
+                            title="delete"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteClick(card.id);
+                            }}
+                            className="bg-white text-black hover:bg-black hover:text-white rounded-full p-2 shadow cursor-pointer"
+                          >
+                            <Trash2 className="hover:fill-red-500 " />
+                          </button>
 
-                        <button
-                          title="Edit"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setEditingId(card.id);
-                            setEditingText(card.text);
-                          }}
-                          className=" bg-white text-black hover:bg-black hover:text-blue-600 rounded-full p-2 shadow cursor-pointer"
-                        >
-                          {editingId === card.id ? <Save /> : <SquarePen />}
-                        </button>
-                      </div>
-                    </div>
-                  </SortableCard>
-                ))}
-            </SortableContext>
+                          <button
+                            title="Edit"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setEditingId(card.id);
+                              setEditingText(card.text);
+                            }}
+                            className=" bg-white text-black hover:bg-black hover:text-blue-600 rounded-full p-2 shadow cursor-pointer"
+                          >
+                            {editingId === card.id ? <Save /> : <SquarePen />}
+                          </button>
+                        </div>
+                      </motion.div>
+                    </SortableCard>
+                  ))}
+              </SortableContext>
+            </AnimatePresence>
           </DndContext>
         </section>
         {sortedCard.length === 0 && !showCard && (
@@ -346,17 +411,21 @@ const TaskList = () => {
           {sortedCard.length > itemsPerPage && (
             <ReactPaginate
               breakLabel="..."
-              nextLabel="next >"
+              nextLabel=">>"
               onPageChange={handlePageClick}
               pageRangeDisplayed={12}
+              user-select:none
               pageCount={pageCount}
-              previousLabel="< previous"
+              previousLabel="<<"
               renderOnZeroPageCount={null}
-              containerClassName="flex justify-center gap-4   mt-2 md:mt-6 lg:mt-8"
-              pageClassName="px-3 py-1 border rounded"
+              containerClassName="flex justify-center gap-4 mt-2 md:mt-6 lg:mt-8 select-none"
+              pageClassName=" border rounded"
+              pageLinkClassName="px-3 py-1 block cursor-pointer"
               activeClassName="bg-primary text-white"
-              previousClassName="px-3 py-1 border rounded"
-              nextClassName="px-3 py-1 border rounded"
+              previousClassName=" border rounded"
+              previousLinkClassName="px-3 py-1 block cursor-pointer"
+              nextClassName=" border rounded"
+              nextLinkClassName="px-3 py-1 block cursor-pointer"
               disabledClassName="opacity-50 cursor-not-allowed"
             />
           )}
