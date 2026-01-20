@@ -52,11 +52,10 @@ const LeftAside = () => {
       <h3 className="hidden lg:block font-bold text-2xl text-center mt-10">
         Sticky
       </h3>
-      <div className="">
+      <div>
         <motion.button
           whileTap={{ scale: 0.9 }}
           onClick={() => setIsVisible(!isVisible)}
-          // className="fixed lg:static bottom-16 left-1/2 -translate-x-1/2 lg:translate-x-7 lg:mt-16 transform  flex items-center justify-center bg-black text-white p-4 rounded-full shadow-lg z-40"
           className=" left-10/12 md:left-1/2 flex  lg:items-center lg:justify-center fixed lg:static bg-black -ml-6 -lg:ml-0 text-white bottom-30 md:bottom-16 p-2 rounded-full  lg:mx-auto z-40 lg:mt-16 hover:scale-120 duration-200 ease-in-out"
         >
           {isVisible ? (
@@ -101,7 +100,6 @@ const LeftAside = () => {
               initial="hidden"
               animate="visible"
               exit="exit"
-              // className="fixed lg:absolute bottom-32 lg:top-32 left-1/2 lg:left-auto -translate-x-1/2 lg:translate-x-0 flex flex-row lg:flex-col gap-4 bg-gray-200 lg:bg-white p-4 rounded-xl shadow-lg z-40 "
               className="fixed lg:relative bottom-40 md:bottom-32 lg:bottom-auto left-1/2 lg:left-auto -translate-x-1/2 lg:translate-x-0 flex flex-row lg:flex-col gap-4 bg-white p-4 lg:bg-white rounded-xl shadow-l z-40"
             >
               {colors.map((color, index) => (
@@ -110,10 +108,10 @@ const LeftAside = () => {
                   variants={itemVariants}
                   onClick={() => {
                     handleColorSelect(color);
+
                     setShowCard(true);
                     setIsVisible(false);
                   }}
-                  // className={`w-6 h-6 rounded-full cursor-pointer shadow-md ${color}`}
                   className={`size-6 items-center flex justify-center mx-auto rounded-full shadow-md ${color}`}
                 />
               ))}

@@ -91,9 +91,10 @@ const FormProvider = ({ children }: { children: ReactNode }) => {
   const editCard = (id: number, updatedText: string) => {
     setCards((prev) => {
       const updated = prev.map((card) =>
-        card.id === id ? { ...card, text: updatedText } : card
+        card.id === id ? { ...card, text: updatedText } : card,
       );
       localStorage.setItem("Cards", JSON.stringify(updated));
+
       return updated;
     });
   };
@@ -101,7 +102,7 @@ const FormProvider = ({ children }: { children: ReactNode }) => {
   const toggleComplete = (id: number) => {
     setCards((prev) => {
       const updated = prev.map((card) =>
-        card.id === id ? { ...card, IsCompleted: !card.IsCompleted } : card
+        card.id === id ? { ...card, IsCompleted: !card.IsCompleted } : card,
       );
       return updated;
     });
@@ -110,7 +111,7 @@ const FormProvider = ({ children }: { children: ReactNode }) => {
   const togglePinCard = (id: number) => {
     setCards((prev) => {
       const updated = prev.map((card) =>
-        card.id === id ? { ...card, IsPinned: !card.IsPinned } : card
+        card.id === id ? { ...card, IsPinned: !card.IsPinned } : card,
       );
       return updated;
     });
