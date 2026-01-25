@@ -433,7 +433,7 @@ const TaskList = () => {
                 previousLinkClassName="px-3 py-1 block cursor-pointer"
                 nextClassName=" border rounded"
                 nextLinkClassName="px-3 py-1 block cursor-pointer"
-                disabledClassName="opacity-50 cursor-not-allowed"
+                disabledClassName="opacity-60 cursor-not-allowed"
               />
             )}
           </div>
